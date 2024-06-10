@@ -4,8 +4,10 @@
 namespace App\Services;
 
 use App\Models\Comment;
+use App\Models\Notification;
 use App\Models\Post;
 use App\Models\User;
+use App\Notifications\CommentNotification;
 use Illuminate\Http\Request;
 
 class CommentService 
@@ -26,6 +28,15 @@ class CommentService
         ]);
         if($comment)
         {
+            $us = User::find($post->userId);
+            $data = json_encode(['user_id' => $us->id, 'comment_id' => $comment->id , 'post_id'=>(int) $id]);
+            Notification::create([
+                'userId' => $user->id,
+                'type'=>'SentComment',
+                'data' => $data,
+                
+            ]);  
+            $us->notify(new CommentNotification($user,$post));
             return response()->json($comment,200);
         }
         
@@ -38,6 +49,8 @@ class CommentService
             return response()->json("Comment Not Found!",400);
         }
         $comment->delete();
+        Notification::where('type','SentComment')
+            ->whereJsonContains('data',['comment_id'=>(int)$id])->delete();
         return response()->json("Comment Deleted!",200);
     }
     public function showCommentByPost(string $id)

@@ -16,25 +16,7 @@ class FollowService
         {
             return response()->json('You cannot follow yourself!',400);
         }
-        // $ex = User::find($id);
-        // if(!$ex)
-        // {
-        //     return response()->json('User not found!',400);
-        // }
-        // if($user->id == $id)
-        // {
-        //     return response()->json('You cannot follow yourself!',400);
-        // }
-        // $follow = Follow::create([
-        //     'followerId'=>$user->id,
-        //     'followeeId'=>$id,
-        // ]);
-        
-        // if($follow)
-        // {
-        //     return response()->json('Followed!',200);
-        // }
-        // return response()->json('Something Went Wrong!',400);
+
             
         $existingRelation = Follow::where('followerId',$user->id)->where('followeeId',$id)->first();
             if($existingRelation)
