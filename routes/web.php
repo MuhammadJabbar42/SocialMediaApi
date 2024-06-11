@@ -8,7 +8,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Route::get('/email',function (){
-//     return view('EmailVerifyReminder');
-// });
+
+Route::get('/api-demo',function (){
+    return view('api-demo');
+})->name('api-demo');
 

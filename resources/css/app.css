@@ -1,0 +1,27 @@
+/* Customizing colors */
+body {
+    background-color: #f8f9fa; /* Background color */
+}
+
+h1 {
+    color: #343a40; /* Heading color */
+    margin-bottom: 30px;
+}
+
+.card {
+    margin-top: 20px;
+    background-color: #fff; /* Card background color */
+    border: 1px solid #dee2e6; /* Card border color */
+}
+
+.card-title {
+    color: #007bff; /* Card title color */
+}
+
+.list-group-item code {
+    display: block;
+    padding: 10px;
+    background: #f8f9fa; /* Code background color */
+    border-radius: 5px;
+    color: #495057; /* Code text color */
+}
