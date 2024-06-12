@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Mail\EmailVerificationReminder;
 use App\Mail\VerifyEmail;
 use App\Models\User;
-use App\Notifications\InvoicePaid;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;

@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Services\CommentService;
 use App\Services\FollowService;
 use App\Services\LikeService;
+use App\Services\MessageService;
 use App\Services\PostService;
 use App\Services\UserService;
 use Illuminate\Support\ServiceProvider;
@@ -30,6 +31,9 @@ class AppServiceProvider extends ServiceProvider
         });       
           $this->app->bind('comment-service',function($app){
             return new CommentService();
+        });
+        $this->app->bind('message-service',function($app){
+            return new MessageService();
         });
     }
 
