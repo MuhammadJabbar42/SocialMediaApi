@@ -49,10 +49,10 @@ class UserService
         if (!$user) {
             throw new UserException('Failed To Create User, Please Try Again Later.', 500);
         }
-            
-            $vf = new VerificationEmail();
-            $vf->test($user->id);
-            return response()->json($user, 201);
+
+        $vf = new VerificationEmail();
+        $vf->test($user->id);
+        return response()->json($user, 201);
     }
 
     public function checkTokens(Request $request)
@@ -60,13 +60,10 @@ class UserService
         $userToken = $request->token;
         $find = PersonalAccessToken::findToken($userToken);
 
-
-        
-        if ($find) {
-            return response()->json(['Message' => "Valid Token!"], 200);
-        } else {
-            return response()->json(['Message' => "Invalid Token!"], 400);
+        if (!$find) {
+            throw new UserException("Invalid Token.", 401);
         }
+        return response()->json(['Message' => "Valid Token!"], 200);
     }
     public function logout()
     {
@@ -81,21 +78,21 @@ class UserService
 
         $user = User::withCount(['followers', 'following', 'posts'])->find($us->id);
 
-        if ($user) {
-            $userDetails = [
-                'id' => $user->id,
-                'name' => $user->name,
-                'profilepicture' => asset('images/' . $user->profilepicture),
-                'followers_count' => $user->followers_count,
-                'following_count' => $user->following_count,
-                'post_count' => $user->posts_count,
-                'bio' => $user->bio,
-            ];
-
-            return response()->json($userDetails, 200);
+        if ($user->count() <= 0) {
+            throw new UserException('No User Found.', 404);
         }
 
-        return response()->json(['message' => 'User not found'], 404);
+        $userDetails = [
+            'id' => $user->id,
+            'name' => $user->name,
+            'profilepicture' => asset('images/' . $user->profilepicture),
+            'followers_count' => $user->followers_count,
+            'following_count' => $user->following_count,
+            'post_count' => $user->posts_count,
+            'bio' => $user->bio,
+        ];
+
+        return response()->json($userDetails, 200);
     }
     public function updateProfile(Request $request)
     {
@@ -118,12 +115,12 @@ class UserService
             }
 
             $user->save();
-        });
-        return response()->json([
-            'id' => $user->id,
-            'name' => $user->name,
-            'bio' => $user->bio,
-            'profilepicture' => asset('images/' . $user->profilepicture),
-        ], 200);
+            return response()->json([
+                'id' => $user->id,
+                'name' => $user->name,
+                'bio' => $user->bio,
+                'profilepicture' => asset('images/' . $user->profilepicture),
+            ], 200);
+   });
     }
 }

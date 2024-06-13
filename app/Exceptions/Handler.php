@@ -41,9 +41,15 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
-        $this->renderable(function(UserException $e){
+        $this->renderable(function (UserException $e) {
             return response()->json([
-               'message' => $e->getMessage(),
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        });
+
+        $this->renderable(function (PostException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
             ], $e->getCode());
         });
     }
