@@ -52,5 +52,12 @@ class Handler extends ExceptionHandler
                 'message' => $e->getMessage(),
             ], $e->getCode());
         });
+
+        $this->renderable(function (MessageException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        });        
+        
     }
 }
