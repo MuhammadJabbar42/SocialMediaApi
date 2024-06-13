@@ -10,48 +10,46 @@ use App\Models\User;
 use App\Notifications\CommentNotification;
 use Illuminate\Http\Request;
 
-class CommentService 
+class CommentService
 {
 
-    public function comment(Request $request,string $id)
+    public function comment(Request $request, string $id)
     {
         $user = auth()->user();
         $post = Post::find($id);
-        if(!$post)
-        {
-            return response()->json("Post Not Found!",400);
+        if (!$post) {
+            return response()->json("Post Not Found!", 400);
         }
         $comment = Comment::create([
-            'content'=>$request->content,
-            'userId'=>$user->id,
-            'postId'=>$id,
+            'content' => $request->content,
+            'userId' => $user->id,
+            'postId' => $id,
         ]);
-        if($comment)
-        {
+        if ($comment) {
             $us = User::find($post->userId);
-            $data = json_encode(['user_id' => $us->id, 'comment_id' => $comment->id , 'post_id'=>(int) $id]);
+            $data = json_encode(['user_id' => $us->id, 'comment_id' => $comment->id, 'post_id' => (int) $id]);
             Notification::create([
                 'userId' => $user->id,
-                'type'=>'SentComment',
+                'type' => 'SentComment',
                 'data' => $data,
-                
-            ]);  
-            $us->notify(new CommentNotification($user,$post));
-            return response()->json($comment,200);
+
+            ]);
+            $us->notify(new CommentNotification($user, $post));
+            return response()->json($comment, 200);
+        } else {
+            return response()->json("Something went wrong!", 500);
         }
-        
     }
     public function deleteComment(string $id)
     {
         $comment = Comment::find($id);
-        if(!$comment)
-        {
-            return response()->json("Comment Not Found!",400);
+        if (!$comment) {
+            return response()->json("Comment Not Found!", 400);
         }
         $comment->delete();
-        Notification::where('type','SentComment')
-            ->whereJsonContains('data',['comment_id'=>(int)$id])->delete();
-        return response()->json("Comment Deleted!",200);
+        Notification::where('type', 'SentComment')
+            ->whereJsonContains('data', ['comment_id' => (int)$id])->delete();
+        return response()->json("Comment Deleted!", 200);
     }
     public function showCommentByPost(string $id)
     {
@@ -61,13 +59,12 @@ class CommentService
         //     $user->profilepicture = 'dummy.jpg';
         //     $user->save();
         // });
-        
+
         $comments = Comment::where('postId', $id)->with('user')->Latest()->get();
-            if($comments->count()==0)
-            {
-                return response()->json(["Message"=>'No Comments Yet'],404);
-            }
-        $flattenedComments = $comments->map(function($comment) {
+        if ($comments->count() == 0) {
+            return response()->json(["Message" => 'No Comments Yet'], 404);
+        }
+        $flattenedComments = $comments->map(function ($comment) {
             return [
                 'id' => $comment->id,
                 'userId' => $comment->userId,
@@ -77,12 +74,11 @@ class CommentService
                 'updated_at' => $comment->updated_at,
                 'userId' => $comment->user->id,
                 'name' => $comment->user->name,
-                'profilepicture' => asset('images/'.$comment->user->profilepicture),
+                'profilepicture' => asset('images/' . $comment->user->profilepicture),
                 'bio' => $comment->user->bio
             ];
         });
-    
+
         return response()->json($flattenedComments, 200);
     }
-
 }
