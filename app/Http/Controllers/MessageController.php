@@ -12,7 +12,7 @@ class MessageController extends Controller
 {
    public function getMessages()
    {
-    return MessageServiceFacade::getMessages();
+    return MessageServiceFacade::getMessage();
    }
 
    public function sendMessage(Request $request)

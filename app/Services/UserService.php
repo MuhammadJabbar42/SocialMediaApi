@@ -1,19 +1,14 @@
 <?php
 
-
 namespace App\Services;
 
+use App\Exceptions\UserException;
 use App\Http\Controllers\VerificationEmail;
-use App\Mail\VerifyEmail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Laravel\Sanctum\PersonalAccessToken;
-use Symfony\Component\CssSelector\Node\FunctionNode;
-
-use function PHPSTORM_META\map;
 
 class UserService
 {
@@ -24,7 +19,10 @@ class UserService
         $password = $request->password;
 
         $user = User::where('email', $email)->first();
-        if ($user) {
+        if (!$user) {
+            throw new UserException('No Account Made by that Credentials.', 404);
+        } else {
+
             if (Hash::check($password, $user->password)) {
                 $user->tokens()->delete();
                 $token = $user->createToken('apiToken')->plainTextToken;
@@ -36,10 +34,8 @@ class UserService
 
                 ], 200);
             } else {
-                return response()->json(['Message' => "Invalid Password!"], 400);
+                throw new UserException('Invalid Password.', 400);
             }
-        } else {
-            return response()->json(['Message' => "User Not Found!"], 400);
         }
     }
     public function signup(Request $request)
@@ -50,13 +46,13 @@ class UserService
             'password' => Hash::make($request->password),
         ]);
 
-        if ($user) {
+        if (!$user) {
+            throw new UserException('Failed To Create User, Please Try Again Later.', 500);
+        }
+            
             $vf = new VerificationEmail();
             $vf->test($user->id);
             return response()->json($user, 201);
-        } else {
-            return response()->json(['Message' => "Operation Failed!"], 400);
-        }
     }
 
     public function checkTokens(Request $request)
@@ -64,6 +60,8 @@ class UserService
         $userToken = $request->token;
         $find = PersonalAccessToken::findToken($userToken);
 
+
+        
         if ($find) {
             return response()->json(['Message' => "Valid Token!"], 200);
         } else {

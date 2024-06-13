@@ -28,7 +28,7 @@ class MessageService
             'reciverId' => 'required|exists:users,id',
             'content' => 'required|string|max:255',
         ]);
-        DB::transaction(function () use ($request) {
+       return DB::transaction(function () use ($request) {
             $message = Message::create([
                 'senderId' => Auth::id(),
                 'reciverId' => $request->reciverId,

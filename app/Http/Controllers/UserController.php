@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 use App\Facades\UserServiceFacade;
+use App\Http\Requests\LoginRequest;
 use App\Http\Requests\StoreUserRequest;
 use Illuminate\Http\Request;
 
@@ -15,7 +16,7 @@ class UserController extends Controller
     {
         return UserServiceFacade::signup($request);
     }
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
         return UserServiceFacade::login($request);
     }
