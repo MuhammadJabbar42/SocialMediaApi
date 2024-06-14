@@ -16,7 +16,7 @@ class PostService
             ->latest()
             ->get();
         if ($posts->count() <= 0) {
-            throw new PostException('No Post Made it yet.', 404);
+            throw new PostException('No Post Made it yet.', 404,null,false);
         }
         $posts = $posts->map(function ($post) {
             $post->user->profilepicture = asset('images/' . $post->user->profilepicture);
@@ -83,7 +83,7 @@ class PostService
             ->get();
         if($posts->count() <=0)
         {
-            throw new PostException('You donnt have any posts.',404);
+            throw new PostException('You donnt have any posts.',404,null,false);
         }
         $posts = $posts->map(function ($post) {
             return [
@@ -106,7 +106,7 @@ class PostService
     {
         $post = Post::where('id', $id)->first();
         if (!$post) {
-            throw new PostException('Post Not Found!', 404);
+            throw new PostException('Post Not Found!', 404,null,false);
         }
         return response()->json($post, 200);
     }
@@ -117,7 +117,7 @@ class PostService
             ->get();
         if(!$posts->count() <=0 )
         {
-            throw new PostException('No Post Found.',404);
+            throw new PostException('No Post Found.',404,null,false);
         }
         $posts = $posts->map(function ($post) {
             return [

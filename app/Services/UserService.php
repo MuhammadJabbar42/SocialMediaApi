@@ -20,7 +20,7 @@ class UserService
 
         $user = User::where('email', $email)->first();
         if (!$user) {
-            throw new UserException('No Account Made by that Credentials.', 404);
+            throw new UserException('No Account Made by that Credentials.', 404,null,false);
         } else {
 
             if (Hash::check($password, $user->password)) {
@@ -38,6 +38,7 @@ class UserService
             }
         }
     }
+
     public function signup(Request $request)
     {
         $user = User::create([
@@ -65,6 +66,7 @@ class UserService
         }
         return response()->json(['Message' => "Valid Token!"], 200);
     }
+
     public function logout()
     {
         $user = auth()->user();
@@ -94,6 +96,7 @@ class UserService
 
         return response()->json($userDetails, 200);
     }
+
     public function updateProfile(Request $request)
     {
         $user = auth()->user();
@@ -121,6 +124,6 @@ class UserService
                 'bio' => $user->bio,
                 'profilepicture' => asset('images/' . $user->profilepicture),
             ], 200);
-   });
+        });
     }
 }

@@ -18,7 +18,7 @@ class CommentService
         $user = auth()->user();
         $post = Post::find($id);
         if (!$post) {
-            return response()->json("Post Not Found!", 400);
+            return response()->json("Post Not Found!", 404);
         }
         $comment = Comment::create([
             'content' => $request->content,
@@ -27,7 +27,7 @@ class CommentService
         ]);
         if ($comment) {
             $us = User::find($post->userId);
-            $data = json_encode(['user_id' => $us->id, 'comment_id' => $comment->id, 'post_id' => (int) $id]);
+            $data = json_encode(['user_id' => $us->id, 'comment_id' => $comment->id, 'post_id' => (int)$id]);
             Notification::create([
                 'userId' => $user->id,
                 'type' => 'SentComment',
@@ -40,6 +40,7 @@ class CommentService
             return response()->json("Something went wrong!", 500);
         }
     }
+
     public function deleteComment(string $id)
     {
         $comment = Comment::find($id);
@@ -51,6 +52,7 @@ class CommentService
             ->whereJsonContains('data', ['comment_id' => (int)$id])->delete();
         return response()->json("Comment Deleted!", 200);
     }
+
     public function showCommentByPost(string $id)
     {
 

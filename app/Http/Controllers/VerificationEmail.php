@@ -13,8 +13,8 @@ class VerificationEmail extends Controller
     //**Just For Testing **/
     public function verify()
     {
-        $user = auth()->user();        
-        $user->email_verified_at = now(); 
+        $user = auth()->user();
+        $user->email_verified_at = now();
         $user->save();
     }
 
@@ -36,7 +36,7 @@ class VerificationEmail extends Controller
         $user->remember_token = $verificationCode;
         Mail::to($user->email)->send(new VerifyEmail($verificationCode));
         $user->save();
-    }  
+    }
 
     //**Logic For Verifying The Code**/
     public function checkCode(Request $request)
@@ -59,7 +59,7 @@ class VerificationEmail extends Controller
         $user = User::find($id);
         $user->remember_token = $randomString;
         $user->save();
-        $verificationUrl = ('http://192.168.1.12:8000/api/v1/verify/'.$randomString);
+        $verificationUrl = ('http://192.168.1.6:8000/api/v1/verify/'.$randomString);
         return $verificationUrl;
     }
     public function test(string $id)
@@ -87,7 +87,7 @@ class VerificationEmail extends Controller
             $user->email_verified_at = now();
             $user->remember_token = null;
             $user->save();
-            return redirect()->away('http://192.168.1.12:8000');            
+            return redirect()->away('http://192.168.1.12:8000');
         }
         else
         {
