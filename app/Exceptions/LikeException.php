@@ -6,7 +6,7 @@ use App\Mail\ExceptionOccured;
 use Exception;
 use Illuminate\Http\JsonResponse;
 
-class MessageException extends Exception
+class LikeException extends Exception
 {
     protected $reportable;
 
@@ -19,7 +19,7 @@ class MessageException extends Exception
     public function report(): void
     {
         if ($this->reportable) {
-            \Log::error('MessageService: ' . $this->getMessage());
+            \Log::error('LikeService: ' . $this->getMessage());
             \Mail::to('mj8667941@gmail.com')->send(new ExceptionOccured($this));
         }
     }

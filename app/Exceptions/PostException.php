@@ -19,7 +19,7 @@ class PostException extends Exception
     public function report(): void
     {
         if ($this->reportable) {
-            \Log::error('UserService: ' . $this->getMessage());
+            \Log::error('PostService: ' . $this->getMessage());
             \Mail::to('mj8667941@gmail.com')->send(new ExceptionOccured($this));
         }
     }

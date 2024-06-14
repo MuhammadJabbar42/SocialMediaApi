@@ -57,7 +57,25 @@ class Handler extends ExceptionHandler
             return response()->json([
                 'message' => $e->getMessage(),
             ], $e->getCode());
-        });        
-        
+        });
+
+        $this->renderable(function (LikeException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        });
+
+        $this->renderable(function (FollowException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        });
+
+        $this->renderable(function (CommentException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        });
+
     }
 }

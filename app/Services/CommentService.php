@@ -3,6 +3,8 @@
 
 namespace App\Services;
 
+use App\Exceptions\CommentException;
+use App\Exceptions\PostException;
 use App\Models\Comment;
 use App\Models\Notification;
 use App\Models\Post;
@@ -17,15 +19,22 @@ class CommentService
     {
         $user = auth()->user();
         $post = Post::find($id);
+
         if (!$post) {
-            return response()->json("Post Not Found!", 404);
+            throw new PostException('No Post Found For Commenting.', 404, null, false);
         }
-        $comment = Comment::create([
-            'content' => $request->content,
-            'userId' => $user->id,
-            'postId' => $id,
-        ]);
-        if ($comment) {
+
+        $transaction = \DB::transaction(function () use ($user, $post, $request, $id) {
+
+            $comment = Comment::create([
+                'content' => $request->content,
+                'userId' => $user->id,
+                'postId' => $id,
+            ]);
+
+            if (!$comment) {
+                throw new CommentException('Something Went Wrong, Please try again later.', 500, null, true);
+            }
             $us = User::find($post->userId);
             $data = json_encode(['user_id' => $us->id, 'comment_id' => $comment->id, 'post_id' => (int)$id]);
             Notification::create([
@@ -35,36 +44,32 @@ class CommentService
 
             ]);
             $us->notify(new CommentNotification($user, $post));
-            return response()->json($comment, 200);
-        } else {
-            return response()->json("Something went wrong!", 500);
-        }
+            return $comment;
+
+        });
+        return response()->json($transaction, 200);
     }
 
     public function deleteComment(string $id)
     {
         $comment = Comment::find($id);
         if (!$comment) {
-            return response()->json("Comment Not Found!", 400);
+            throw new CommentException('No Comment Found to Deleting.', 404, null, false);
         }
-        $comment->delete();
-        Notification::where('type', 'SentComment')
-            ->whereJsonContains('data', ['comment_id' => (int)$id])->delete();
-        return response()->json("Comment Deleted!", 200);
+        return \DB::transaction(function () use ($comment, $id) {
+            $chk = $comment->delete();
+            Notification::where('type', 'SentComment')
+                ->whereJsonContains('data', ['comment_id' => (int)$id])->delete();
+            return response()->json("Comment Deleted!", 200);
+        });
     }
 
     public function showCommentByPost(string $id)
     {
 
-        // $users = User::where('profilepicture',NULL)->get();
-        // $users=$users->map(function($user){
-        //     $user->profilepicture = 'dummy.jpg';
-        //     $user->save();
-        // });
-
         $comments = Comment::where('postId', $id)->with('user')->Latest()->get();
         if ($comments->count() == 0) {
-            return response()->json(["Message" => 'No Comments Yet'], 404);
+            throw new CommentException('No Comments Yet.', 404, null, false);
         }
         $flattenedComments = $comments->map(function ($comment) {
             return [

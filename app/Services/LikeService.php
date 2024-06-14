@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Exceptions\LikeException;
+use App\Exceptions\PostException;
 use App\Models\Like;
 use App\Models\Notification;
 use App\Models\Post;
@@ -15,24 +17,24 @@ class LikeService
     {
         $user = auth()->user();
         $post = Post::find($id);
+        $postOwner = User::find($post->userId);
+
         if (!$post) {
-            return response()->json("Post Not Found!", 404);
+            throw new PostException('No Post Found.', 404, null, false);
         }
         $existLike = Like::where('userId', $user->id)
             ->where('postId', $id)->exists();
         if ($existLike) {
-            return response()->json("Already You Like it!", 409);
+            throw new LikeException('You Already Liked.', 409, null, false);
         }
-        DB::transaction(function () use ($user, $post) {
+        $transaction = DB::transaction(function () use ($user, $post, $postOwner) {
             $like = Like::create([
                 'userId' => $user->id,
                 'postId' => $post->id,
             ]);
             $post->likes()->attach($like);
-        });
 
-        if ($post) {
-            $postOwner = User::find($post->userId);
+
             if ($user->id != $post->userId) {
                 $data = json_encode(['user_id' => $postOwner->id, 'post_id' => $post->id]);
                 Notification::create([
@@ -43,9 +45,13 @@ class LikeService
                 ]);
                 $postOwner->notify(new LikeNotification($user, $post));
             }
-            return response()->json(["Liked!"], 200);
+            return ['message' => "Liked!"];
+        });
+        if (!$transaction) {
+            throw new LikeException('Something went wrong, please try again later.', 500);
         }
-        return response()->json("Something went wrong!", 500);
+        return response()->json($transaction, 200);
+
     }
 
     public function unlike(string $id)
@@ -54,7 +60,7 @@ class LikeService
         $post = Post::find($id);
         $us = User::find($post->userId);
 
-        DB::transaction(function () use ($user, $post, $id, $us) {
+        $transaction = DB::transaction(function () use ($user, $post, $id, $us) {
             $post->likes()->detach($user->id);
 
             $lk = Like::where('postId', $id)->delete();
@@ -62,10 +68,11 @@ class LikeService
                 ->whereJsonContains('data', ['user_id' => $us->id])
                 ->whereJsonContains('data', ['post_id' => (int)$id])
                 ->delete();
-            if ($lk) {
-                return response()->json("Unliked!", 200);
+            if (!$lk) {
+                throw new LikeException('Already Unliked.', 400, null, false);
             }
+            return ['message' => 'Unliked.'];
         });
-        return response()->json("Already Unliked!", 400);
+        return response()->json($transaction, 200);
     }
 }
