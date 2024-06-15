@@ -41,10 +41,12 @@ class UserService
 
     public function signup(Request $request)
     {
+        $transaction = DB::transaction(function () use($request){
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'profilepicture'=>'dummy.jpg',
         ]);
 
         if (!$user) {
@@ -53,7 +55,9 @@ class UserService
 
         $vf = new VerificationEmail();
         $vf->test($user->id);
-        return response()->json($user, 201);
+        return ['message'=>'Account Created Successfully.'];
+        });
+        return response()->json($transaction,201);
     }
 
     public function checkTokens(Request $request)
