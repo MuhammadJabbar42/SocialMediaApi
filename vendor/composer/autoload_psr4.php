@@ -67,6 +67,7 @@ return array(
     'Psr\\EventDispatcher\\' => array($vendorDir . '/psr/event-dispatcher/src'),
     'Psr\\Container\\' => array($vendorDir . '/psr/container/src'),
     'Psr\\Clock\\' => array($vendorDir . '/psr/clock/src'),
+    'Predis\\' => array($vendorDir . '/predis/predis/src'),
     'PhpParser\\' => array($vendorDir . '/nikic/php-parser/lib/PhpParser'),
     'PhpOption\\' => array($vendorDir . '/phpoption/phpoption/src/PhpOption'),
     'PHPStan\\PhpDocParser\\' => array($vendorDir . '/phpstan/phpdoc-parser/src'),
@@ -106,6 +107,7 @@ return array(
     'Doctrine\\Common\\Lexer\\' => array($vendorDir . '/doctrine/lexer/src'),
     'Dflydev\\DotAccessData\\' => array($vendorDir . '/dflydev/dot-access-data/src'),
     'DeepCopy\\' => array($vendorDir . '/myclabs/deep-copy/src/DeepCopy'),
+    'DebugBar\\' => array($vendorDir . '/maximebf/debugbar/src/DebugBar'),
     'Database\\Seeders\\' => array($baseDir . '/database/seeders', $vendorDir . '/laravel/pint/database/seeders'),
     'Database\\Factories\\' => array($baseDir . '/database/factories', $vendorDir . '/laravel/pint/database/factories'),
     'Cron\\' => array($vendorDir . '/dragonmantank/cron-expression/src/Cron'),
@@ -117,5 +119,6 @@ return array(
     'Brick\\Math\\' => array($vendorDir . '/brick/math/src'),
     'BeyondCode\\LaravelWebSockets\\' => array($vendorDir . '/beyondcode/laravel-websockets/src'),
     'Barryvdh\\LaravelIdeHelper\\' => array($vendorDir . '/barryvdh/laravel-ide-helper/src'),
+    'Barryvdh\\Debugbar\\' => array($vendorDir . '/barryvdh/laravel-debugbar/src'),
     'App\\' => array($baseDir . '/app', $vendorDir . '/laravel/pint/app'),
 );

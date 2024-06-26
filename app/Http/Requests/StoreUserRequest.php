@@ -22,8 +22,8 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'=>'required|string|min:4|max:16',
-            'email'=>'required|email|unique:users',
+            'name' => 'required|string|min:4|max:16',
+            'email' => 'required|email|unique:users',
             'password' => [
                 'required',
                 'string',
@@ -35,11 +35,19 @@ class StoreUserRequest extends FormRequest
 
     }
 
-    public function messages():array
+    public function messages(): array
     {
         return [
-            'password.regex'=> 'The password must be 8-26 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.',
-            
+            'name.required' => 'Please Fill Up Your Name.',
+            'name.min'=>'Name should be at least 4 Charecter',
+            'name.max'=>'Name Cannot be longer than 16 Charecter',
+            'email.required' => 'Please Fill Up Your Email.',
+            'email.email'=>'Must be email format example@example.com',
+            'password.required' => 'Please Fill Up Your Password.',
+            'password.min'=>'Password must be at least 8 charecters',
+            'password.max'=>"password should be at most 26 charecters",
+            'password.regex' => 'The password must be include at least one uppercase letter, one lowercase letter, one number, and one special character.',
+
         ];
     }
 }

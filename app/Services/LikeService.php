@@ -2,8 +2,11 @@
 
 namespace App\Services;
 
+use App\Events\NotificationCount;
 use App\Exceptions\LikeException;
 use App\Exceptions\PostException;
+use App\Http\Controllers\CacheClearController;
+use App\Http\Controllers\NotificationController;
 use App\Models\Like;
 use App\Models\Notification;
 use App\Models\Post;
@@ -18,6 +21,13 @@ class LikeService
         $user = auth()->user();
         $post = Post::find($id);
         $postOwner = User::find($post->userId);
+
+        CacheClearController::Post();
+        CacheClearController::UserDetailClear($postOwner->id);
+        CacheClearController::UserDetailClear($user->id);
+        CacheClearController::UserPosts($user->id);
+        CacheClearController::UserPosts($postOwner->id);
+        CacheClearController::NotificationClear($postOwner->id);
 
         if (!$post) {
             throw new PostException('No Post Found.', 404, null, false);
@@ -44,6 +54,7 @@ class LikeService
 
                 ]);
                 $postOwner->notify(new LikeNotification($user, $post));
+                NotificationController::CountNotificationBroadcast($postOwner->id);
             }
             return ['message' => "Liked!"];
         });
@@ -57,8 +68,16 @@ class LikeService
     public function unlike(string $id)
     {
         $user = auth()->user();
+
         $post = Post::find($id);
         $us = User::find($post->userId);
+
+        CacheClearController::UserPosts($us->id);
+        CacheClearController::Post();
+        CacheClearController::UserDetailClear($us->id);
+        CacheClearController::UserDetailClear($user->id);
+        CacheClearController::UserPosts($user->id);
+        CacheClearController::NotificationClear($us->id);
 
         $transaction = DB::transaction(function () use ($user, $post, $id, $us) {
             $post->likes()->detach($user->id);
@@ -71,6 +90,7 @@ class LikeService
             if (!$lk) {
                 throw new LikeException('Already Unliked.', 400, null, false);
             }
+            NotificationController::countNotificationBroadcast($us->id);
             return ['message' => 'Unliked.'];
         });
         return response()->json($transaction, 200);

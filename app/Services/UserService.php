@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\UserException;
+use App\Http\Controllers\CacheClearController;
 use App\Http\Controllers\VerificationEmail;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -20,7 +21,7 @@ class UserService
 
         $user = User::where('email', $email)->first();
         if (!$user) {
-            throw new UserException('No Account Made by that Credentials.', 404,null,false);
+            throw new UserException('No Account Made by that Credentials.', 404, null, false);
         } else {
 
             if (Hash::check($password, $user->password)) {
@@ -41,23 +42,23 @@ class UserService
 
     public function signup(Request $request)
     {
-        $transaction = DB::transaction(function () use($request){
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'profilepicture'=>'dummy.jpg',
-        ]);
+        $transaction = DB::transaction(function () use ($request) {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'profilepicture' => 'dummy.jpg',
+            ]);
 
-        if (!$user) {
-            throw new UserException('Failed To Create User, Please Try Again Later.', 500);
-        }
+            if (!$user) {
+                throw new UserException('Failed To Create User, Please Try Again Later.', 500);
+            }
 
-        $vf = new VerificationEmail();
-        $vf->test($user->id);
-        return ['message'=>'Account Created Successfully.'];
+            $vf = new VerificationEmail();
+            $vf->test($user->id);
+            return ['message' => 'Account Created Successfully.'];
         });
-        return response()->json($transaction,201);
+        return response()->json($transaction, 201);
     }
 
     public function checkTokens(Request $request)
@@ -80,23 +81,29 @@ class UserService
 
     public function userDetail()
     {
-        $us = auth()->user();
+        $user = auth()->user();
 
-        $user = User::withCount(['followers', 'following', 'posts'])->find($us->id);
+        $cacheKey = 'user.details.' . $user->id;
 
-        if ($user->count() <= 0) {
-            throw new UserException('No User Found.', 404);
-        }
+        $userDetails = \Cache::remember($cacheKey, 3600, function () use ($user) {
 
-        $userDetails = [
-            'id' => $user->id,
-            'name' => $user->name,
-            'profilepicture' => asset('images/' . $user->profilepicture),
-            'followers_count' => $user->followers_count,
-            'following_count' => $user->following_count,
-            'post_count' => $user->posts_count,
-            'bio' => $user->bio,
-        ];
+            $userDetails = User::withCount(['followers', 'following', 'posts'])
+                ->find($user->id);
+
+            if (!$userDetails) {
+                throw new UserException('No user found.', 404);
+            }
+
+            return [
+                'id' => $userDetails->id,
+                'name' => $userDetails->name,
+                'profilepicture' => asset('images/' . $userDetails->profilepicture),
+                'followers_count' => $userDetails->followers_count,
+                'following_count' => $userDetails->following_count,
+                'post_count' => $userDetails->posts_count,
+                'bio' => $userDetails->bio,
+            ];
+        });
 
         return response()->json($userDetails, 200);
     }
@@ -105,7 +112,11 @@ class UserService
     {
         $user = auth()->user();
 
-        DB::transaction(function () use ($user, $request) {
+        CacheClearController::UserDetailClear($user->id);
+        CacheClearController::Post();
+        CacheClearController::UserPosts($user->id);
+
+        return DB::transaction(function () use ($user, $request) {
             $name = $user->name;
             $bio = $user->bio;
             $profilepicture = $user->profilepicture;

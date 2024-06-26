@@ -13,3 +13,7 @@ Broadcast::channel('chat.{userId}',function($user,$userId){
 
 });
 
+Broadcast::channel('user.notification.{userId}',function($user,$userId){
+    return (int) $user->id === (int) $userId;
+
+});

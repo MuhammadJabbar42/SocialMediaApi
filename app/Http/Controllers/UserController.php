@@ -16,25 +16,30 @@ class UserController extends Controller
     {
         return UserServiceFacade::signup($request);
     }
+
     public function login(LoginRequest $request)
     {
         return UserServiceFacade::login($request);
     }
+
     public function logout()
     {
         return UserServiceFacade::logout();
     }
+
     public function checkTokens(Request $request)
     {
         return UserServiceFacade::checkTokens($request);
     }
+
     public function userDetail()
     {
         return UserServiceFacade::userDetail();
     }
+
     public function updateProfile(Request $request)
     {
         return UserServiceFacade::updateProfile($request);
     }
-    
+
 }

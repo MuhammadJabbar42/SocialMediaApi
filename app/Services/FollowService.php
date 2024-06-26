@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Exceptions\FollowException;
+use App\Http\Controllers\CacheClearController;
+use App\Http\Controllers\NotificationController;
 use App\Models\Follow;
 use App\Models\Notification;
 use App\Models\User;
@@ -14,6 +16,12 @@ class FollowService
     public function follow(string $id)
     {
         $user = auth()->user();
+
+        CacheClearController::Post();
+        CacheClearController::UserDetailClear($user->id);
+        CacheClearController::UserDetailClear($id);
+        CacheClearController::NotificationClear($id);
+
         if ($user->id == $id) {
             throw new FollowException('You Cannot Follow YourSelf.', 400, null, false);
         }
@@ -29,7 +37,7 @@ class FollowService
                 'followeeId' => $id,
             ]);
             $us = User::find($id);
-            $data = json_encode(['follower_id' => $user->id, 'followee_id' => $us->id]);
+            $data = json_encode(['follower_id' => $user->id, 'user_id' => $us->id]);
             Notification::create([
                 'userId' => $user->id,
                 'type' => 'SentFollow',
@@ -37,6 +45,7 @@ class FollowService
 
             ]);
             $us->notify(new FollowNotification($user, $us));
+            NotificationController::CountNotificationBroadcast($id);
             return ['message' => 'Followed.'];
         });
         return response()->json($transaction, 200);
@@ -45,6 +54,12 @@ class FollowService
     public function unfollow(string $id)
     {
         $user = auth()->user();
+
+        CacheClearController::Post();
+        CacheClearController::UserDetailClear($user->id);
+        CacheClearController::UserDetailClear($id);
+        CacheClearController::NotificationClear($id);
+
         $transaction = DB::transaction(function () use ($user, $id) {
             $fl = Follow::where('followerId', $user->id)
                 ->where('followeeId', $id)
@@ -54,9 +69,10 @@ class FollowService
             }
             Notification::where('type', 'SentFollow')
                 ->whereJsonContains('data', ['follower_id' => $user->id])
-                ->whereJsonContains('data', ['followee_id' => (int)$id])
+                ->whereJsonContains('data', ['user_id' => (int)$id])
                 ->delete();
             return ['message' => 'Unfollowed.'];
+            NotificationController::CountNotificationBroadcast($id);
         });
         return response()->json($transaction, 200);
     }

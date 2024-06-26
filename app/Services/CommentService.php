@@ -3,8 +3,11 @@
 
 namespace App\Services;
 
+use App\Events\NotificationCount;
 use App\Exceptions\CommentException;
 use App\Exceptions\PostException;
+use App\Http\Controllers\CacheClearController;
+use App\Http\Controllers\NotificationController;
 use App\Models\Comment;
 use App\Models\Notification;
 use App\Models\Post;
@@ -19,12 +22,19 @@ class CommentService
     {
         $user = auth()->user();
         $post = Post::find($id);
+        $postOwner = User::find($post->userId);
+
+        CacheClearController::Post();
+        CacheClearController::CommentClear($id);
+        CacheClearController::UserPosts($user->id);
+        CacheClearController::UserDetailClear($user->id);
+        CacheClearController::NotificationClear($postOwner->id);
 
         if (!$post) {
             throw new PostException('No Post Found For Commenting.', 404, null, false);
         }
 
-        $transaction = \DB::transaction(function () use ($user, $post, $request, $id) {
+        $transaction = \DB::transaction(function () use ($user, $post, $request, $id,$postOwner) {
 
             $comment = Comment::create([
                 'content' => $request->content,
@@ -35,16 +45,22 @@ class CommentService
             if (!$comment) {
                 throw new CommentException('Something Went Wrong, Please try again later.', 500, null, true);
             }
-            $us = User::find($post->userId);
-            $data = json_encode(['user_id' => $us->id, 'comment_id' => $comment->id, 'post_id' => (int)$id]);
-            Notification::create([
-                'userId' => $user->id,
-                'type' => 'SentComment',
-                'data' => $data,
 
-            ]);
-            $us->notify(new CommentNotification($user, $post));
-            return $comment;
+            $us = User::find($post->userId);
+            if ($user->id != $us->id) {
+
+
+                $data = json_encode(['user_id' => $us->id, 'comment_id' => $comment->id, 'post_id' => (int)$id]);
+                Notification::create([
+                    'userId' => $user->id,
+                    'type' => 'SentComment',
+                    'data' => $data,
+
+                ]);
+                $us->notify(new CommentNotification($user, $post));
+                NotificationController::CountNotificationBroadcast($postOwner->id);
+                return $comment;
+            }
 
         });
         return response()->json($transaction, 200);
@@ -52,6 +68,16 @@ class CommentService
 
     public function deleteComment(string $id)
     {
+        $user = auth()->id();
+
+        $cacheId = Comment::where('id', $id)->value('postId');
+
+        CacheClearController::Post();
+        CacheClearController::CommentClear($cacheId);
+        CacheClearController::UserDetailClear($user->id);
+        CacheClearController::NotificationClear($cacheId->id);
+
+
         $comment = Comment::find($id);
         if (!$comment) {
             throw new CommentException('No Comment Found to Deleting.', 404, null, false);
@@ -66,11 +92,16 @@ class CommentService
 
     public function showCommentByPost(string $id)
     {
+        $cacheKey = 'post.comments.' . $id;
 
-        $comments = Comment::where('postId', $id)->with('user')->Latest()->get();
+        $comments = \Cache::remember($cacheKey, 600, function () use ($id) {
+            return Comment::where('postId', $id)->with('user')->latest()->get();
+        });
+
         if ($comments->count() == 0) {
             throw new CommentException('No Comments Yet.', 404, null, false);
         }
+
         $flattenedComments = $comments->map(function ($comment) {
             return [
                 'id' => $comment->id,
