@@ -141,4 +141,21 @@ class UserService
             ], 200);
         });
     }
+
+    public function SearchForUsers(string $query)
+    {
+        $users = User::where('name', 'like',   $query . '%')->get();
+            if($users->count() == 0) {
+                throw new UserException('No User Found By That Name.', 404, null, false);
+            }
+            $users = $users->map(function ($user){
+                return [
+                    'name'=>$user->name,
+                    'profilepicture'=>asset('images/'.$user->profilepicture),
+                ];
+            });
+
+        return response()->json($users);
+
+    }
 }

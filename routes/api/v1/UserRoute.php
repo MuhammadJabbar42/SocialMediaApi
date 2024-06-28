@@ -13,7 +13,8 @@ Route::middleware(['auth:sanctum','api','sessionStart'])
     Route::post('login',[UserController::class,'login'])->withoutMiddleware('auth:sanctum')->name('Login');
     Route::get('logout',[UserController::class,'logout'])->name('logout');
     Route::post('tki',[UserController::class,'checkTokens'])->withoutMiddleware('auth:sanctum')->name('CheckTokens');
-    Route::get('user',[UserController::class,'userDetail'])->name('ShowUser');
-    Route::post('user/update',[UserController::class,'updateProfile'])->name('UpdateProfile');
+    Route::get('user',[UserController::class,'userDetail'])->name('Show.User');
+    Route::post('user/update',[UserController::class,'updateProfile'])->name('Update.Profile');
+    Route::get('user/search/{query}',[UserController::class,'SearchForUsers'])->name('Search.For.Users');
 
 });

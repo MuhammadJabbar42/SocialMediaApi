@@ -42,4 +42,9 @@ class UserController extends Controller
         return UserServiceFacade::updateProfile($request);
     }
 
+    public function SearchForUsers(String $query)
+    {
+        return UserServiceFacade::SearchForUsers($query);
+    }
+
 }

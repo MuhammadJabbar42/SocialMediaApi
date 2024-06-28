@@ -43,7 +43,7 @@ return [
                 // 'useTLS' => env('PUSHER_SCHEME', 'https') === 'https',
                 'userTLS'=>false,
                 'encrypted'=>false,
-                'host'=>'192.168.1.7',
+                'host'=>'192.168.1.12',
                 'port'=>6001,
                'scheme'=>'http',
             ],
