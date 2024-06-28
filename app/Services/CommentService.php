@@ -34,7 +34,7 @@ class CommentService
             throw new PostException('No Post Found For Commenting.', 404, null, false);
         }
 
-        $transaction = \DB::transaction(function () use ($user, $post, $request, $id,$postOwner) {
+        $transaction = \DB::transaction(function () use ($user, $post, $request, $id, $postOwner) {
 
             $comment = Comment::create([
                 'content' => $request->content,
@@ -71,6 +71,9 @@ class CommentService
         $user = auth()->id();
 
         $cacheId = Comment::where('id', $id)->value('postId');
+        $postOwner = Post::find($cacheId);
+
+
 
         CacheClearController::Post();
         CacheClearController::CommentClear($cacheId);
@@ -82,10 +85,11 @@ class CommentService
         if (!$comment) {
             throw new CommentException('No Comment Found to Deleting.', 404, null, false);
         }
-        return \DB::transaction(function () use ($comment, $id) {
+        return \DB::transaction(function () use ($comment, $id,$postOwner) {
             $chk = $comment->delete();
             Notification::where('type', 'SentComment')
                 ->whereJsonContains('data', ['comment_id' => (int)$id])->delete();
+            NotificationController::CountNotificationBroadcast($postOwner->userId);
             return response()->json("Comment Deleted!", 200);
         });
     }

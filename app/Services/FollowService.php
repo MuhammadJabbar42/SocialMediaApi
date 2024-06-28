@@ -71,8 +71,8 @@ class FollowService
                 ->whereJsonContains('data', ['follower_id' => $user->id])
                 ->whereJsonContains('data', ['user_id' => (int)$id])
                 ->delete();
-            return ['message' => 'Unfollowed.'];
             NotificationController::CountNotificationBroadcast($id);
+            return ['message' => 'Unfollowed.'];
         });
         return response()->json($transaction, 200);
     }
