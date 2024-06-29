@@ -1,7 +1,7 @@
-# SocialMedia App
+# SocialMedia API
 
 ## Overview
-SocialMedia is a dynamic social networking application that allows users to connect and interact through features like commenting, liking, following, chatting, posting, and secure login/signup
+KurdGram is a dynamic social networking application that allows users to connect and interact through features like commenting, liking, following, chatting, posting, and secure login/signup
 
 ## Features
 - **Commenting**: Users can comment on posts and engage in discussions.
