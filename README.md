@@ -1,66 +1,80 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SocialMedia App
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Overview
+SocialMedia is a dynamic social networking application that allows users to connect and interact through features like commenting, liking, following, chatting, posting, and secure login/signup
 
-## About Laravel
+## Features
+- **Commenting**: Users can comment on posts and engage in discussions.
+- **Likes**: Users can like posts to show their appreciation.
+- **Follow**: Users can follow each other to stay updated with their activities.
+- **Chat**: Real-time messaging functionality to communicate with other users.
+- **Posts**: Users can create, edit, and delete their posts.
+- **Login/Signup**: Secure user authentication for signing up and logging in.
+- **Email Verification**
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Technologies Used
+- **Backend**: Laravel
+- **Database**: MySQL
+- **Real-time Functionality**: laravel-websockets
+- **Email-Service**: Mailtrap
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## How To Use it
+**1.** Make sure Everything Matchs With Your `IP Address` in (`.env`,`broadcasting.php`...etc)  
+  
+**2.** Run `php artisan migrate` for migrating the tables into your Database  
+  
+**3.** Start The Server  `php artisan serve` or You can specify the host and port...`php artisan serve --host=192.168.1.2 --port=8000`  
+  
+**4.** Start The Broadcast `php artisan websockets:serve`  
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-## Learning Laravel
+## API Endpoints
+Here are the available API endpoints:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### User Authentication
+- **Login**: `POST /api/v1/login`
+- **Signup**: `POST /api/v1/signup`
+- **Logout**: `GET /api/v1/logout`
+- **CheckTokens**: `POST /api/v1/tki`
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### User Management
+- **Get User Details**: `GET /api/v1/user` ***(Token Required)***
+- **Update Profile**: `POST /api/v1/user/update`  ***(Token Required)***
+- **Search Users**: `GET /api/v1/user/search/{query}`  ***(Token Required)***
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Posts
+- **Create Post**: `POST /api/v1/post/create`  ***(Token Required)***
+- **Delete Post**: `DELETE /api/v1/post/delete/{postId}`  ***(Token Required)***
+- **Update Post**: `PUT /api/v1/post/update/{postId}`  ***(Token Required)***
+- **Get Post by ID**: `GET /api/v1/post/{postId}`  ***(Token Required)***
+- **Get All Posts**: `GET /api/v1/posts`  ***(Token Required)***
+- **Get Posts by User ID**: `GET /api/v1/posts/{userId}`  ***(Token Required)***
 
-## Laravel Sponsors
+### Comments
+- **Comment on Post**: `POST /api/v1/comment/{postId}` ***(Token Required)***
+- **Delete Comment**: `DELETE /api/v1/comment/{commentId}` ***(Token Required)***
+- **Show Comments for Post**: `GET /api/v1/comment/{postId}` ***(Token Required)***
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+### Likes
+- **Like Post**: `POST /api/v1/like/{postId}` ***(Token Required)***
+- **Unlike Post**: `DELETE /api/v1/like/{postId}` ***(Token Required)***
 
-### Premium Partners
+### Follow
+- **Follow User**: `POST /api/v1/follow/{userId}` ***(Token Required)***
+- **Unfollow User**: `DELETE /api/v1/unfollow/{userId}` ***(Token Required)***
+- **Get Followers**: `GET /api/v1/followers` ***(Token Required)***
+- **Get Followings**: `GET /api/v1/followings` ***(Token Required)***
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+### Chat
+- **Get Messages**: `GET /api/v1/chat` ***(Token Required)***
+- **Send Message**: `POST /api/v1/chat` ***(Token Required)***
 
-## Contributing
+### Notifications
+- **Get Notifications**: `GET /api/v1/notification` ***(Token Required)***
+- **Count Unread Notifications**: `GET /api/v1/notification/count` ***(Token Required)***
+- **Mark Notifications as Seen**: `GET /api/v1/notification/seen` ***(Token Required)***
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Email Verification
+- **Verify Email**: `GET /api/v1/verify/{VerificationCode}` ***(Token Required)*** 
+- **Resend Verification Email**: `POST /api/v1/resend` ***(Token Required)*** `Resend Email Verification For Current User` 
+- **Verify Email for Test**: `GET /api/v1/verify` ***(Token Required)***  `Verifying current user for test instantly`
