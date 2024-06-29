@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('userId');
             $table->string('type');
             $table->json('data');
-            $table->timestamp('read_at');
+            $table->timestamp('read_at')->nullable();
             $table->foreign('userId')->on('users')->references('id')->cascadeOnDelete();
             $table->timestamps();
         });

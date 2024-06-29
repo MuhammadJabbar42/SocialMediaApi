@@ -10,15 +10,14 @@ use Illuminate\Support\Facades\Auth;
 
 class MessageController extends Controller
 {
-   public function getMessages()
-   {
-    return MessageServiceFacade::getMessage();
-   }
+    public function getMessages()
+    {
+        return MessageServiceFacade::getMessage();
+    }
 
-   public function sendMessage(Request $request)
-   {
-    return MessageServiceFacade::sendMessage($request);
-   }
-   
-   
+    public function sendMessage(Request $request)
+    {
+        return MessageServiceFacade::sendMessage($request);
+    }
+
 }

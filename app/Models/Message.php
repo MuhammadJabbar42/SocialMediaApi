@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $senderId
@@ -37,6 +37,7 @@ class Message extends Model
     protected $fillable = [
         'senderId',
         'reciverId',
+        'read_at',
         'content',
     ];
 

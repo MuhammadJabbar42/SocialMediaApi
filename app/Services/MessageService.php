@@ -7,6 +7,7 @@ use App\Exceptions\MessageException;
 use App\Http\Controllers\CacheClearController;
 use App\Mail\ExceptionOccured;
 use App\Models\Message;
+use App\Models\User;
 use Illuminate\Broadcasting\BroadcastException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -69,4 +70,5 @@ class MessageService
             ], 500);
         }
     }
+
 }

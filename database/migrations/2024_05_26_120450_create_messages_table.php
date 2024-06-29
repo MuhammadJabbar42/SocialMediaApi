@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('content');
             $table->foreign('senderId')->on('users')->references('id')->cascadeOnDelete();
             $table->foreign('reciverId')->on('users')->references('id')->cascadeOnDelete();
+            $table->timestamp('read_at')->nullable();
             $table->timestamps();
         });
     }

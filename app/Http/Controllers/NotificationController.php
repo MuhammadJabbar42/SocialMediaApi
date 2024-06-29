@@ -34,7 +34,7 @@ class NotificationController extends Controller
                 $message = 'Liked Your Post';
                 $name = $us->name;
             } elseif ($notf->type == 'SentComment') {
-                $message = 'Commented on Your Post';
+                $message = 'Commented';
                 $name = $us->name;
             } elseif ($notf->type == 'SentFollow') {
                 $message = 'Followed You';
